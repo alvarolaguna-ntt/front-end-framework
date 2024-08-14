@@ -159,7 +159,7 @@
         <repository>
             <id>github</id>
             <name>GitHub Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/raunelgarcia/front-end-framework</url>
+            <url>https://maven.pkg.github.com/alvarolaguna-ntt/front-end-framework</url>
         </repository>
     </distributionManagement>
 </project>
