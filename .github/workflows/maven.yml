@@ -1,0 +1,48 @@
+name: Publish package to GitHub Packages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      # Step to generate a new version based on the latest version
+      - name: Generate new version
+        run: |
+          new_version="1.0.18.dev0"
+          echo "NEW_VERSION=$new_version" >> $GITHUB_ENV
+
+      # Step to update the version in the pom.xml
+      - name: Update POM version
+        run: |
+          new_version="${{ env.NEW_VERSION }}"
+          mvn versions:set -DnewVersion=$new_version
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Publish package
+        run: mvn --batch-mode deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+
+      # Step to tag the new version
+      - name: Tag the new version
+        run: |
+          new_version="${{ env.NEW_VERSION }}"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v$new_version"
+          git push origin "v$new_version"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
